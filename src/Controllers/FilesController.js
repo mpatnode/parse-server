@@ -4,7 +4,7 @@ import AdaptableController from './AdaptableController';
 import { validateFilename, FilesAdapter } from '../Adapters/Files/FilesAdapter';
 import path from 'path';
 import mime from 'mime';
-import Parse from 'parse/node';
+const Parse = require('parse').Parse;
 
 const legacyFilesRegex = new RegExp(
   '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}-.*'
@@ -98,17 +98,14 @@ export class FilesController extends AdaptableController {
   }
 
   validateFilename(filename) {
-    var errormsg;
     if (typeof this.adapter.validateFilename === 'function') {
-      errormsg = this.adapter.validateFilename(filename);
-    } else {
-      errormsg = validateFilename(filename);
+      const error = this.adapter.validateFilename(filename);
+      if (typeof error !== 'string') {
+        return error;
+      }
+      return new Parse.Error(Parse.Error.INVALID_FILE_NAME, error);
     }
-
-    if (errormsg) {
-      return new Parse.Error(Parse.Error.INVALID_FILE_NAME, errormsg);
-    }
-    return null;
+    return validateFilename(filename);
   }
 }
 

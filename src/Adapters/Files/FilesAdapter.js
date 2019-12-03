@@ -65,9 +65,9 @@ export class FilesAdapter {
    *
    * @param {string} filename
    *
-   * @returns {null|string} error message or null if there are no errors
+   * @returns {null|Parse.Error} null if there are no errors
    */
-  // validateFilename(filename: string): ?string {}
+  // validateFilename(filename: string): ?Parse.Error {}
 
   /** Handles Byte-Range Requests for Streaming
    *
@@ -89,12 +89,15 @@ export class FilesAdapter {
  */
 export function validateFilename(filename): ?Parse.Error {
   if (filename.length > 128) {
-    return 'Filename too long.';
+    return new Parse.Error(Parse.Error.INVALID_FILE_NAME, 'Filename too long.');
   }
 
   const regx = /^[_a-zA-Z0-9][a-zA-Z0-9@. ~_-]*$/;
   if (!filename.match(regx)) {
-    return 'Filename contains invalid characters.';
+    return new Parse.Error(
+      Parse.Error.INVALID_FILE_NAME,
+      'Filename contains invalid characters.'
+    );
   }
   return null;
 }
